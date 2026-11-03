@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+:root {
+  --accent: #aa88ff;
+  --text: #dddddd;
+  --muted: #9a9a9a;
+  --chip: #1c1c1c;
+  --line: #2a2a2a;
+  --panel: rgba(0, 0, 0, 0.8);
+}
+
+/* Element defaults live in the base layer so Tailwind utilities (no-underline, bg-*, px-*) can override them. */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000000;
+    color: var(--text);
+    font-family: "SF Mono", "Menlo", "Consolas", "Liberation Mono", monospace;
+    font-size: 13px;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    transition: opacity 300ms ease;
+  }
+
+  a:hover {
+    opacity: 0.7;
+  }
+
+  button {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Body copy keeps the mono voice but drops the caps, and gets a size and leading made for reading.
+   Left-aligned: justified monospace opens uneven gaps between words. */
+.prose {
+  text-transform: none;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.prose p {
+  margin: 0 0 1em;
+}
+.prose p:last-child {
+  margin-bottom: 0;
+}
+.prose ul,
+.prose ol {
+  margin: 0 0 1em;
+  padding-left: 1.4em;
+}
+.prose li {
+  margin: 0 0 0.55em;
+  padding-left: 0.2em;
+}
+.prose li::marker {
+  color: var(--muted);
+}
+.prose strong {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* "+ Highlights" fold under each project */
+.fold > summary {
+  display: inline-block;
+  list-style: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: #555555;
+  text-underline-offset: 3px;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+.fold > summary::-webkit-details-marker {
+  display: none;
+}
+.fold > summary::before {
+  content: "+ ";
+  color: var(--accent);
+}
+.fold[open] > summary::before {
+  content: "\2212  ";
+}
+.fold > summary:hover {
+  color: #ffffff;
+  text-decoration-color: #ffffff;
+}
+
+/* Shade under the two text columns. Stops are in px so each column is covered edge to edge
+   whatever the viewport, and the dots only show in the fade beyond it. */
+.shade-left {
+  width: 540px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.88) 0, rgba(0, 0, 0, 0.78) 350px, transparent 100%);
+}
+.shade-right {
+  width: 840px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.92) 0, rgba(0, 0, 0, 0.86) 590px, transparent 100%);
+}
+@media (max-width: 1180px) {
+  .shade-right {
+    width: 600px;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.92) 0, rgba(0, 0, 0, 0.88) 420px, transparent 100%);
+  }
+}
+
+/* Soft edges where the detail column scrolls under the top and bottom of the viewport */
+.fade-y {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%);
+}
+
+/* Short reveal when the detail column changes content */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 360ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
