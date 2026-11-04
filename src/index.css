@@ -54,6 +54,26 @@
   }
 }
 
+/* Full height that follows the phone browser's collapsing address bar */
+.app-h {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* On phones the nav row scrolls sideways; fade its right edge so the overflow is visible as such */
+@media (max-width: 760px) {
+  .nav-fade {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent 100%);
+  }
+
+  /* Content scrolling under the header fades out instead of clipping on a hard line */
+  .content-fade {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 18px);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 18px);
+  }
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

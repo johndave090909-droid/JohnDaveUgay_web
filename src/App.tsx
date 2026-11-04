@@ -88,7 +88,7 @@ export default function App() {
   }, [current]);
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-black text-[var(--text)]">
+    <main className="relative w-screen app-h overflow-hidden bg-black text-[var(--text)]">
       {/* Layer 1: GPU particle portrait and fluid simulation */}
       <BackgroundCanvas />
 
@@ -104,6 +104,13 @@ export default function App() {
             <div className="shade-left absolute inset-y-0 left-0" aria-hidden="true" />
             <div className="shade-right absolute inset-y-0 right-0" aria-hidden="true" />
           </>
+        )}
+        {/* Phones: a shade under the brand and nav; the content panel scrolls below them */}
+        {isMobile && (
+          <div
+            className="absolute inset-x-0 top-0 h-[128px] bg-gradient-to-b from-black/90 via-black/70 to-transparent"
+            aria-hidden="true"
+          />
         )}
         <Brand />
         <SectionCounter section={section} />

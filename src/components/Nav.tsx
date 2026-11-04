@@ -19,17 +19,19 @@ export const Nav: React.FC<NavProps> = ({ active, mobile }) => {
     const link = nav?.querySelector<HTMLElement>('[aria-current="page"]');
     if (!nav || !link) return;
     const left = link.offsetLeft - 24;
-    const right = link.offsetLeft + link.offsetWidth + 24 - nav.clientWidth;
+    const right = link.offsetLeft + link.offsetWidth + 48 - nav.clientWidth;
     if (nav.scrollLeft > left) nav.scrollTo({ left, behavior: 'smooth' });
     else if (nav.scrollLeft < right) nav.scrollTo({ left: right, behavior: 'smooth' });
   }, [active, mobile]);
 
   const layout = mobile
-    ? 'top-[84px] left-0 right-0 px-[24px] flex items-center gap-[18px] overflow-x-auto no-scrollbar'
+    ? 'top-[80px] left-0 right-0 pl-[24px] pr-[56px] flex items-center gap-[18px] overflow-x-auto no-scrollbar nav-fade'
     : `top-[120px] left-[24px] w-[320px] flex flex-col gap-[10px]
        min-[1280px]:top-[30px] min-[1280px]:left-auto min-[1280px]:right-[90px] min-[1280px]:w-auto
        min-[1280px]:flex-row min-[1280px]:items-center min-[1280px]:gap-[22px]`;
   const group = mobile ? 'flex gap-[18px] shrink-0' : 'flex flex-wrap gap-x-[20px] gap-y-[4px]';
+  // Bigger tap targets on phones
+  const size = mobile ? 'py-[12px] text-[13px]' : 'py-[6px] text-[12px]';
 
   const link = (s: Section) => {
     const isActive = s.id === active;
@@ -38,10 +40,10 @@ export const Nav: React.FC<NavProps> = ({ active, mobile }) => {
         key={s.id}
         href={hrefFor(s.id)}
         aria-current={isActive ? 'page' : undefined}
-        className={`relative shrink-0 py-[6px] text-[12px] leading-none tracking-[0.06em] no-underline whitespace-nowrap transition-colors duration-150 hover:opacity-100
-          after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:transition-colors ${
+        className={`relative shrink-0 ${size} leading-none tracking-[0.06em] no-underline whitespace-nowrap transition-colors duration-150 hover:opacity-100
+          after:absolute after:left-0 after:right-0 after:bottom-[6px] after:h-[2px] after:transition-colors ${
             isActive ? 'text-white after:bg-[var(--accent)]' : 'text-[#a8a8a8] hover:text-white after:bg-transparent'
-          }`}
+          } ${mobile ? '' : 'after:bottom-0'}`}
       >
         {s.label}
       </a>

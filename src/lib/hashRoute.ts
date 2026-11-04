@@ -62,7 +62,18 @@ export function scrollContentTo(id?: string, smooth = true) {
   const box = document.getElementById('content');
   if (!box) return;
   const el = id ? document.getElementById(id) : null;
-  const top = el ? el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 20 : 0;
+  // Phone layout: a transparent spacer shows the portrait above the panel, and a chip bar may stick to the top
+  const hero = box.querySelector<HTMLElement>('[data-hero]')?.offsetHeight ?? 0;
+  const sticky = box.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0;
+  let top: number;
+  if (el) {
+    top = el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 20 - sticky;
+    // An anchor at the very start of the panel keeps the portrait in view above it
+    if (top <= hero + 80) top = 0;
+  } else {
+    // A new page keeps the panel up if it already was, otherwise the portrait shows first
+    top = box.scrollTop > hero ? hero : 0;
+  }
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   box.scrollTo({ top: Math.max(0, top), behavior: smooth && !reduce ? 'smooth' : 'auto' });
 }

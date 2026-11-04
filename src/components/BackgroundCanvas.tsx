@@ -6,6 +6,11 @@ import { ImageParticles } from '../lib/imageParticles';
 // Image (served from /public) that the particle cloud forms; transparent pixels are left empty
 const PORTRAIT_URL = '/portrait.jpg';
 
+// Phones: the camera pulls back until this much width fits on screen (the photo is ~4.3 wide at the figure's
+// height), and the figure sits this fraction of the visible height above centre, clear of the content panel.
+const MOBILE_FIT_WIDTH = 4.6;
+const MOBILE_CENTER_LIFT = 0.16;
+
 export const BackgroundCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -40,8 +45,17 @@ export const BackgroundCanvas: React.FC = () => {
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // Camera setup: FOV 30, near 0.1, far 1000, base pos (-1.17, 0, 6) looking at origin
-    const baseCameraPos = new THREE.Vector3(-1.17, 0, 6);
+    const isMobile = window.innerWidth <= 760;
+
+    // Camera setup: FOV 30, near 0.1, far 1000. Desktop: base pos (-1.17, 0, 6) looking at the origin.
+    // Phones: straight on, further back so the whole photo fits, looking a little below the figure so it
+    // appears in the upper part of the screen.
+    const halfFov = Math.tan(THREE.MathUtils.degToRad(15));
+    const aspect = window.innerWidth / window.innerHeight;
+    const mobileZ = THREE.MathUtils.clamp(MOBILE_FIT_WIDTH / (2 * halfFov * aspect), 6, 26);
+    const mobileLift = isMobile ? 2 * mobileZ * halfFov * MOBILE_CENTER_LIFT : 0;
+    const lookTarget = new THREE.Vector3(0, -mobileLift, 0);
+    const baseCameraPos = isMobile ? new THREE.Vector3(0, -mobileLift, mobileZ) : new THREE.Vector3(-1.17, 0, 6);
     const camera = new THREE.PerspectiveCamera(
       30,
       window.innerWidth / window.innerHeight,
@@ -49,13 +63,17 @@ export const BackgroundCanvas: React.FC = () => {
       1000
     );
     camera.position.copy(baseCameraPos);
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(lookTarget);
 
     const scene = new THREE.Scene();
 
-    const isMobile = window.innerWidth <= 760;
     const fluid = new FluidSimulation(renderer);
-    const particles = new ImageParticles(renderer, isMobile, PORTRAIT_URL);
+    const particles = new ImageParticles(renderer, isMobile, PORTRAIT_URL, {
+      // Centred on phones (the desktop nudge makes room for the side columns), with dots scaled up to
+      // compensate for the farther camera
+      offsetX: isMobile ? 0 : undefined,
+      pointScale: isMobile ? mobileZ / 6 : 1,
+    });
     scene.add(particles.group);
 
     // Mouse tracking
@@ -149,7 +167,7 @@ export const BackgroundCanvas: React.FC = () => {
 
       // Camera lerps to it at 0.05 and looks at the origin
       camera.position.lerp(targetPos, 0.05);
-      camera.lookAt(0, 0, 0);
+      camera.lookAt(lookTarget);
 
       // Step fluid simulation
       fluid.step();

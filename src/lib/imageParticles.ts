@@ -191,7 +191,7 @@ function boxBlur(src: Float32Array, w: number, h: number, radius: number): Float
 }
 
 // Turns the image's opaque pixels into dot positions and colours
-function samplePortrait(image: HTMLImageElement, count: number): PortraitSample | null {
+function samplePortrait(image: HTMLImageElement, count: number, offsetX: number): PortraitSample | null {
   const w = SAMPLE_WIDTH;
   const h = Math.max(1, Math.round((SAMPLE_WIDTH * image.naturalHeight) / image.naturalWidth));
   const canvas = document.createElement('canvas');
@@ -231,7 +231,7 @@ function samplePortrait(image: HTMLImageElement, count: number): PortraitSample 
   const scale = FIGURE_HEIGHT / figureHeightPx;
   const centerX = (minX + maxX + 1) / 2;
   const centerY = (minY + maxY + 1) / 2;
-  const toWorldX = (px: number) => (px - centerX) * scale + FIGURE_OFFSET_X;
+  const toWorldX = (px: number) => (px - centerX) * scale + offsetX;
   const toWorldY = (py: number) => -(py - centerY) * scale + FIGURE_OFFSET_Y;
 
   // Where the figure runs into the image border (every side, for a photo without transparency),
@@ -307,7 +307,7 @@ function samplePortrait(image: HTMLImageElement, count: number): PortraitSample 
     origins,
     starts,
     colors,
-    rippleCenter: new THREE.Vector2(FIGURE_OFFSET_X, toWorldY(minY + figureHeightPx * 0.35)),
+    rippleCenter: new THREE.Vector2(offsetX, toWorldY(minY + figureHeightPx * 0.35)),
   };
 }
 
@@ -334,11 +334,18 @@ export class ImageParticles {
   private viewProjMatrix = new THREE.Matrix4();
   private ready = false;
   private disposed = false;
+  private offsetX: number;
 
-  constructor(renderer: THREE.WebGLRenderer, isMobile: boolean, imageUrl: string) {
+  constructor(
+    renderer: THREE.WebGLRenderer,
+    isMobile: boolean,
+    imageUrl: string,
+    options: { offsetX?: number; pointScale?: number } = {}
+  ) {
     this.renderer = renderer;
-    // ~262k dots on desktop (512x512), ~32k on mobile (180x180)
-    this.simDim = isMobile ? 180 : 512;
+    this.offsetX = options.offsetX ?? FIGURE_OFFSET_X;
+    // ~262k dots on desktop (512x512), ~65k on mobile (256x256)
+    this.simDim = isMobile ? 256 : 512;
     this.totalPoints = this.simDim * this.simDim;
 
     // Full float keeps the small per-frame ripple steps smooth; half float is the fallback
@@ -391,7 +398,7 @@ export class ImageParticles {
         uPositionTexture: { value: null },
         uOrigin: { value: null },
         uDPR: { value: renderer.getPixelRatio() },
-        uPointSize: { value: POINT_SIZE },
+        uPointSize: { value: POINT_SIZE * (options.pointScale ?? 1) },
         uTime: { value: 0 },
         uBrightness: { value: PORTRAIT_BRIGHTNESS },
         uMono: { value: PORTRAIT_MONO },
@@ -409,7 +416,7 @@ export class ImageParticles {
   }
 
   private build(image: HTMLImageElement) {
-    const sample = samplePortrait(image, this.totalPoints);
+    const sample = samplePortrait(image, this.totalPoints, this.offsetX);
     if (!sample) {
       console.warn('[ImageParticles] Image has no opaque pixels to turn into dots');
       return;
