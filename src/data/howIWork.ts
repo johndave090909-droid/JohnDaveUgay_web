@@ -20,14 +20,14 @@ export const principles: Principle[] = [
     num: '02',
     title: 'Check the detail behind every total',
     body:
-      'A 3.5% forecast gap looked fine until I checked each recipe card and found 198 of 203 ingredient lines wrong. Since then every report I send validates its inputs first, and every live dashboard raises an alert when a source changes format or goes stale.',
+      'A 3.5% food-cost forecast gap looked fine until an AI-assisted scan found 198 of 203 recipe-card ingredient lines wrong, with errors in both directions cancelling out. Helping plan the fix taught me not to trust a good total. Since then every report I send validates its inputs first, and every live dashboard raises an alert when a source changes format or goes stale.',
   },
   {
     id: 'keep-the-habit',
     num: '03',
     title: 'Replace the spreadsheet, keep the habit',
     body:
-      'People trust the tools they already know. The booking console syncs to Google Sheets, the scheduler runs from Excel, and staff profiles sync from the sheet the office already maintains. The new system has to be easier than the old one on day one.',
+      'People trust the tools they already know. The booking console syncs to Google Sheets, and staff profiles sync from the sheet the office already maintains. The new system has to be easier than the old one on day one.',
   },
   {
     id: 'run-it-like-production',
@@ -48,7 +48,7 @@ export const principles: Principle[] = [
     num: '06',
     title: 'Measure before and after',
     body:
-      'Shift coverage went from 31.7% to about 75% against a ceiling of 76.1%. The labor forecast back-tests at 4.5% mean error. If I cannot put a number on the before and the after, I have not finished.',
+      'The labor forecast back-tests at 4.5% mean error, and a headcount-based method took the payroll estimate gap from −29% to +4.7%. If I cannot put a number on the before and the after, I have not finished.',
   },
 ];
 

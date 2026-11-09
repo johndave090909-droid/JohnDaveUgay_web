@@ -31,11 +31,11 @@ export const resume = {
     {
       org: 'Polynesian Cultural Center (PCC), Culinary Department',
       place: 'Laie, Hawaii',
-      title: 'AI, Software & Systems Specialist, reporting to the Culinary Director. Promoted within six months.',
+      title: 'Head of Operations Intelligence, reporting to the Culinary Director. Promoted within six months.',
       dates: 'Nov 2024 – Present',
       bullets: [
         'Built and run the Culinary Command Center, the department’s internal web platform (640+ commits, ~70k lines of TypeScript on React and Firebase). It replaced spreadsheets, paper forms and emailed PDFs across 3 venues.',
-        'Found costing errors on 198 of 203 recipe-card ingredients: a 3.5% net forecast gap was hiding a 28% line-level variance. Proposed a 60-day recipe-correction sprint and a next-day ordering pilot.',
+        'Helped plan how to eliminate a hidden food-cost variance after an AI-assisted scan found costing errors on 198 of 203 recipe-card ingredients (a 3.5% net gap hiding a 28% line-level variance); explained it to managers, the Culinary Director and R&D.',
         'Automated the weekly labor report. Every Monday it merges guest counts (Power BI) and timesheets (UKG) for ~6,500 guests and ~1,650 labor hours, checks the data and emails labor cost per guest against target to leadership.',
         'Built a seasonal labor-cost forecast back-tested at 4.5% mean error. A headcount-based method I designed cut the payroll estimate gap from −29% to +4.7%.',
         'Built an Excel/VBA + Python auto-scheduler that raised shift coverage from 31.7% to ~75% (maximum possible 76.1%) across 77 positions and ~51 student workers, within the 19-hour weekly limit.',

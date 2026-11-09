@@ -1,10 +1,10 @@
 # John Dave Ugay – portfolio
 
-A single-screen portfolio: a GPU particle portrait with a monospace logbook UI over it. About, Projects and
-Recommendations form one scrolling home page; Case studies, Resume, How I work and Around the web are pages of
-their own. Every page shares one layout: the index on the left, the content on the right, the portrait in
-between. On the home page the nav, the section counter and the index follow the part being read. Phones get a
-bottom sheet instead.
+The landing page (`#/`) is the GPU particle portrait with a short introduction and a menu into every page. The
+portrait appears there and nowhere else. About, Projects, Recommendations, Case studies, Resume, How I work and
+Contact are each a plain page of their own, built for reading: a sticky header with every page (a Menu button on
+narrower screens), one centred reading column, and previous/next links at the bottom. Projects and case studies
+open as cards first; each card has its own page.
 
 React 19 + Vite + Tailwind v4 + three.js. No backend, no API keys.
 
@@ -19,43 +19,41 @@ npm run lint       # type-check
 
 ## Where to edit
 
-Everything a visitor reads lives in `src/data/`:
+Everything a visitor reads lives in `src/data/` (the About page copy is in `src/views/AboutView.tsx`):
 
 | File | What |
 |---|---|
-| `profile.ts` | Name, tagline, email, and the links under **Around the web**. A link with `url: ''` shows as "add link" instead of a dead link. |
-| `projects.ts` | Project cards. They appear on the home page in this order. Set `image: '/projects/<id>.jpg'` and drop the file in `public/projects/` to replace the generated thumbnail. |
+| `profile.ts` | Name, tagline, email, and the links on the **Contact** page. A link with `url: ''` stays hidden until it has a URL. |
+| `projects.ts` | Project cards, in this order, each opening its own page. Drop a screenshot in `public/projects/` and set `image: { src, alt, position? }` to replace the generated thumbnail; it also shows on the project's page. Add `video` (an `.mp4` in the same folder) to play a muted clip on the project's page, with `src` as its still. Mark a link `live: true` when it goes to a working site or the work in use: the card gets a "Live" tag and the Contact page lists it under "See my work live". |
 | `caseStudies.ts` | Long-form write-ups. Each one lists the project ids it belongs to. |
 | `resume.ts` | The on-page resume. Keep it in step with the PDF in `public/resume/`. |
 | `howIWork.ts` | The six principles and the toolkit. |
-| `recommendations.ts` | Empty list = "collecting" state with reserved slots. Add entries to show quotes. |
+| `recommendations.ts` | Empty list = "coming soon" note with an email button. Add entries to show quotes. |
 
 The portrait is `public/portrait.jpg`. The dot cloud follows its brightness, so a photo with a dark or
 transparent background reads best. Tuning knobs (dot size, brightness, how far the cursor scatters the
-dots) are the constants at the top of `src/lib/imageParticles.ts`.
+dots) are the constants at the top of `src/lib/imageParticles.ts`. On desktop the figure centres itself in the
+space right of the landing text (`clearLeft` in `BackgroundCanvas.tsx`).
 
-URLs are hash routes, so every section and item is linkable: `#/projects/command-center` scrolls the home
-page to that project and opens its highlights, `#/case-studies/recipe-audit` and `#/resume` open those pages.
+URLs are hash routes, so every page and item is linkable: `#/projects/command-center` and
+`#/case-studies/recipe-audit` open that project or case study, `#/resume` opens the resume, `#/` the portrait.
 
 ## Layout
 
 ```
 src/
-  App.tsx                 routes, keyboard, layout switch
+  App.tsx                 routes: landing page or header + page + footer
   components/
-    BackgroundCanvas.tsx  three.js renderer, fluid sim + particle portrait
-    Brand.tsx             monogram and name, top-left
-    SectionCounter.tsx    section number, top-right
-    Nav.tsx               section links: home-page parts, then the other pages
-    IndexList.tsx         left-hand index (desktop)
-    Detail.tsx            right-hand content column
-    MobileSheet.tsx       phone layout
+    Landing.tsx           the portrait page: intro and the menu into every page
+    BackgroundCanvas.tsx  three.js renderer, fluid sim + particle portrait (landing page only)
+    SiteHeader.tsx        sticky header, page links, Menu on narrower screens
+    SiteFooter.tsx        previous/next page, contact, back to top
+    Brand.tsx             monogram and name, links home
     Thumb.tsx             generated card thumbnails
-    ui.tsx                headings, prose, chips, "Label -> value" links
-  views/                  one component per section; HomeView stacks About, Projects, Recommendations
+    ui.tsx                page intro, sections, reading text, chips, buttons, link rows
+  views/                  one component per page; Projects and Case studies also hold their detail pages
   lib/
-    hashRoute.ts          #/section/item routing, content scrolling, home-page scroll spy
-    lists.tsx             what the index shows for each section
+    hashRoute.ts          #/page/item routing, the page list and its order
     fluid.ts              GPU fluid simulation (cursor wake)
     imageParticles.ts     portrait -> dots
   data/                   content

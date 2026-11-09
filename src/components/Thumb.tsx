@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import type { ProjectImage } from '../data/projects';
 
 // A generated thumbnail: a stipple of dots in the same spirit as the particle portrait behind the page.
 // It is deterministic per seed, so a card always looks the same. Pass `image` to use a real screenshot instead.
@@ -70,14 +71,35 @@ export interface ThumbProps {
   seed: string;
   code: string;
   stat?: string;
-  image?: string;
+  image?: ProjectImage;
 }
 
 export const Thumb: React.FC<ThumbProps> = ({ seed, code, stat, image }) => {
   const dots = useMemo(() => (image ? [] : makeDots(seed)), [seed, image]);
 
+  // A screenshot keeps the same code and figure along the bottom, over a shade so they stay legible.
+  // Decorative here: the card's title sits right under it.
   if (image) {
-    return <img src={image} alt="" loading="lazy" className="w-full h-full object-cover block" />;
+    return (
+      <div className="relative w-full h-full">
+        <img
+          src={image.src}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover block"
+          style={{ objectPosition: image.position }}
+        />
+        <div className="absolute inset-x-0 bottom-0 h-[60px] bg-gradient-to-t from-black/90 to-transparent" />
+        <span className="absolute left-[12px] bottom-[9px] text-[12px] leading-none text-white tracking-[0.08em]">
+          {code}
+        </span>
+        {stat && (
+          <span className="absolute right-[12px] bottom-[9px] text-[11px] leading-none text-[#bdbdbd] tracking-[0.04em]">
+            {stat}
+          </span>
+        )}
+      </div>
+    );
   }
 
   return (

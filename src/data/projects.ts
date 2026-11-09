@@ -1,11 +1,14 @@
-// Projects shown under [projects] on the home page, in this order.
-// To add a screenshot, drop a file in public/projects/<id>.jpg and set `image: '/projects/<id>.jpg'`.
+// Projects on the Projects page, in this order; each one also gets a page of its own.
+// To add a screenshot, drop a file in public/projects/ and set `image: { src: '/projects/<file>', alt: '...' }`.
+// For a clip, add `video: '/projects/<file>.mp4'` too; `src` is then its still.
 
 export type ProjectTag = 'ops' | 'web' | 'ai' | 'data' | 'motion' | 'security';
 
 export interface ProjectLink {
   label: string;
   url: string;
+  /** A working site or the work in use. Live links are also listed on the Contact page and mark the project's card. */
+  live?: boolean;
 }
 
 export interface Project {
@@ -26,7 +29,17 @@ export interface Project {
   caseStudy?: string;
   /** Headline figure shown on the thumbnail. */
   stat?: string;
-  image?: string;
+  /** Screenshot used for the index card and the project entry, in place of the generated thumbnail. */
+  image?: ProjectImage;
+}
+
+export interface ProjectImage {
+  src: string;
+  alt: string;
+  /** CSS object-position for the crop, e.g. 'left top'. Defaults to centred. */
+  position?: string;
+  /** A muted clip that plays in the project's entry, with `src` as its still. The index card keeps the still. */
+  video?: string;
 }
 
 export const PROJECT_TAGS: { id: ProjectTag | 'all'; label: string }[] = [
@@ -56,54 +69,75 @@ export const projects: Project[] = [
       'Firebase (Firestore, Auth, Storage, Cloud Functions)',
       'Google Cloud Secret Manager',
       'Claude API',
-      'Gemini API',
     ],
     stat: '25+ modules',
+    image: {
+      src: '/projects/command-center-home.webp',
+      alt: 'Culinary Command Center home page: the department’s motto, vision and mission, a menu of its systems, and a team summary; staff names and announcements blurred',
+      position: 'left top',
+    },
     summary:
       'The web platform a 90-person culinary department runs on across 3 venues. It started as one automation and grew into 25+ modules: team messaging, projects, live guest counts, shift scheduling, training sign-off and reporting. It replaced spreadsheets, paper forms and emailed PDFs.',
     highlights: [
       '640+ commits and ~70k lines of TypeScript; 35+ Cloud Functions.',
       '17 permission roles enforced in database security rules; API keys kept server-side.',
-      'LLM features in production: Claude turns a photo of a student’s class schedule into scheduler entries; Gemini turns each project board into a structured portfolio map.',
+      'LLM features in production: Claude turns a photo of a student’s class schedule into scheduler entries.',
+      'Includes MissionBoard, the department’s work board with KPIs and live process maps, written up as a project of its own.',
       'A separate test environment loaded with live data, unit tests on the data parsers, and pull-request review for a second developer.',
       'Built with AI-assisted development (Claude Code, Codex). I make the product decisions and own the result.',
     ],
     caseStudy: 'command-center',
   },
   {
-    id: 'scheduler-forecast',
-    code: 'SCH',
-    title: 'Auto-scheduler & labor forecast',
-    kicker: 'Automation /\nExcel/VBA · Python',
+    id: 'missionboard',
+    code: 'MSN',
+    title: 'MissionBoard, mission control for culinary operations',
+    kicker: 'Work management /\nKPIs · process maps',
     org: 'Polynesian Cultural Center',
-    year: '2025',
-    tags: ['ops', 'data'],
-    stack: ['Excel/VBA', 'Python', 'forecasting'],
-    stat: '31.7% → ~75%',
+    year: '2026',
+    tags: ['ops', 'web'],
+    stack: ['React', 'Firebase (Firestore, Auth)', 'Firestore security rules', 'Vitest'],
+    stat: 'live KPIs',
+    image: {
+      src: '/projects/missionboard.webp',
+      alt: 'MissionBoard project board for the PCC Culinary workspace: columns of in-progress cards, staff names blurred',
+      position: 'left top',
+    },
     summary:
-      'A scheduler that fills 77 positions from ~51 student workers inside a 19-hour weekly limit, and a seasonal labor-cost forecast for the same department.',
+      'The department’s work board, built into the Culinary Command Center. Projects live as cards on shared boards, each board tracks its own daily, weekly and monthly KPIs beside the work, and teams draw their processes as shared, live diagrams. The Culinary Director gets one view of everyone’s workload and how much is landing on time.',
     highlights: [
-      'Shift coverage rose from 31.7% to ~75%, against a maximum possible 76.1% given availability.',
-      'Forecast back-tested at 4.5% mean error.',
-      'A headcount-based method cut the payroll estimate gap from −29% to +4.7%.',
+      'Board, calendar, timeline, dashboard and archive views of the same cards. Every change shows up live for everyone on the board.',
+      'KPIs beside each board: daily, weekly or monthly goal cards with up to ten goals each (numbers, percentages, money or yes/no), met when every goal is.',
+      'Process maps: a diagram editor where two people can work on the same map at once and their edits merge shape by shape, so nobody loses work.',
+      'Bulk add: paste a list from a spreadsheet or a chat summary and it becomes cards, with owners matched to board members and every row checked before it is saved.',
+      'Team workload and a completion dashboard for the Director, worked out by fixed, tested rules rather than AI, so every number traces back to the cards behind it.',
+      'About 13,700 lines across 15 modules, with unit tests on the KPI, bulk-add and dashboard logic.',
     ],
-    caseStudy: 'scheduler',
+    caseStudy: 'command-center',
   },
   {
     id: 'labor-report',
     code: 'LBR',
-    title: 'Weekly labor report',
-    kicker: 'Automation /\nPower BI · UKG',
+    title: 'Labor report & forecast',
+    kicker: 'Automation · forecasting /\nPower BI · UKG',
     org: 'Polynesian Cultural Center',
-    year: '2025',
+    year: '2025 – now',
     tags: ['ops', 'data'],
-    stack: ['Cloud Functions', 'Node.js', 'Power BI exports', 'UKG timesheets', 'email'],
+    stack: ['Cloud Functions', 'Node.js', 'React', 'Firebase', 'Power BI exports', 'UKG timesheets', 'Forecasting'],
     stat: '~6,500 guests / wk',
+    image: {
+      src: '/projects/labor-report.webp',
+      alt: 'Command Center Labor Report: last week’s actual labor cost per guest by day beside this week’s live forecast from bookings and the roster; dollar figures blurred',
+      position: 'left top',
+    },
     summary:
-      'Every Monday it merges guest counts from Power BI and timesheets from UKG for ~6,500 guests and ~1,650 labor hours, checks the data and emails labor cost per guest against target to leadership.',
+      'One page in the Command Center for labor cost per guest, looking back and looking ahead. Every Monday it merges guest counts from Power BI and timesheets from UKG for ~6,500 guests and ~1,650 labor hours, checks the data and emails last week’s labor cost per guest against target to leadership. Beside it, a live forecast projects the current week from bookings and the roster as each day is counted.',
     highlights: [
       'Validates the join before anything is sent, so a bad week never looks like a good one.',
       'Replaced a manual spreadsheet merge that used to take a morning.',
+      'This week’s cost per guest updates as each day is counted: guests from bookings at the expected scan rate, hours estimated from the roster.',
+      'The seasonal labor-cost forecast back-tests at 4.5% mean error.',
+      'A headcount-based method cut the payroll estimate gap from −29% to +4.7%.',
     ],
     caseStudy: 'data-pipelines',
   },
@@ -111,15 +145,20 @@ export const projects: Project[] = [
     id: 'kpi-live',
     code: 'KPI',
     title: 'Daily KPI scorecard & live guest counts',
-    kicker: 'Automation /\nPDF parsing',
+    kicker: 'Automation /\nPower Automate · PDF parsing',
     org: 'Polynesian Cultural Center',
     year: '2025',
     tags: ['ops', 'data', 'web'],
-    stack: ['Cloud Functions', 'PDF parsing', 'Firestore', 'React'],
+    stack: ['Microsoft Power Automate', 'My own n8n-inspired automation', 'Cloud Functions', 'PDF parsing', 'Firestore', 'React'],
     stat: 'every 5 min',
+    image: {
+      src: '/projects/live-guest-count.webp',
+      alt: 'Live Guest Count slide on the kitchen screens: total guests, then the Aloha Luau, Hale Ohana Luau and Gateway Buffet counts with each venue’s share (example numbers)',
+    },
     summary:
-      'A 31-measure daily scorecard and live guest counts refreshed every 5 minutes on 4 screens, both parsed from PDF reports, with alerts when a format changes or the data goes stale. 93 staff profiles synced from Google Sheets.',
+      'A 31-measure daily scorecard and live guest counts refreshed every 5 minutes on 4 screens. The live count is pulled by a combination of Microsoft Power Automate and an n8n-inspired automation I built myself. Both feeds are parsed from PDF reports, with alerts when a format changes or the data goes stale. 93 staff profiles synced from Google Sheets.',
     highlights: [
+      'Live guest count pulled with Microsoft Power Automate plus my own n8n-inspired automation, built from scratch, so a new count reaches the screens every 5 minutes.',
       '31 measurables on the daily scorecard (EOS-style).',
       'Alerts on format changes and stale data, so wrong numbers never pass as right ones.',
       '17 permission roles decide who sees what.',
@@ -129,21 +168,51 @@ export const projects: Project[] = [
   {
     id: 'recipe-audit',
     code: 'RCP',
-    title: 'Recipe-card cost audit',
+    title: 'Fixing a hidden recipe-cost variance',
     kicker: 'Cost analysis /\nfood cost',
     org: 'Polynesian Cultural Center',
     year: '2026',
     tags: ['ops', 'data'],
-    stack: ['Excel', 'Python', 'variance analysis'],
+    stack: ['Variance analysis', 'Food-cost planning'],
     stat: '198 / 203',
+    // Generated illustration (scratchpad gc/make_variance.py): per-line bars are made up; only the totals are real.
+    image: {
+      src: '/projects/recipe-variance.webp',
+      alt: 'Illustration, not real data: 203 ingredient lines as bars, costed too high above zero and too low below, cancelling out to a small +3.5% net gap beside a 28% average line error',
+    },
     summary:
-      'Audited costing on 203 recipe-card ingredients and found errors on 198. The forecast was only 3.5% off in total, which was hiding a 28% variance at the line level.',
+      'An AI-assisted scan found costing errors on 198 of 203 recipe-card ingredient lines. The food-cost forecast was only 3.5% off in total, but that small gap was hiding a 28% variance at the line level. I helped plan how to respond and how to eliminate the variance, and explained it all to the managers, the Culinary Director and R&D.',
     highlights: [
-      'Separated the small net gap from the large line-level errors that cancelled each other out.',
-      'Proposed a 60-day recipe-correction sprint to leadership.',
-      'Proposed a next-day ordering pilot, because warehouse deliveries arrive after prep starts.',
+      'Helped plan how to proceed once the errors were found.',
+      'Helped plan the fix: a 60-day recipe-correction sprint, and a next-day ordering pilot because warehouse deliveries arrive after prep starts.',
+      'Explained carefully to the managers, the Culinary Director and R&D why a 3.5% total could look fine while individual lines were far off: errors in both directions were cancelling each other out.',
     ],
     caseStudy: 'recipe-audit',
+  },
+  {
+    id: 'inventory-verification',
+    code: 'INV',
+    title: 'Inventory verification for transfer orders',
+    kicker: 'Command Center module /\nReact · Firebase',
+    org: 'Polynesian Cultural Center',
+    year: '2026',
+    tags: ['ops', 'web'],
+    stack: ['TypeScript', 'React', 'Firebase (Firestore)', 'SheetJS', 'Vitest'],
+    stat: 'sheet → checklist',
+    image: {
+      src: '/projects/inventory-verification.webp',
+      alt: 'Inventory Verification checklist for a retail transfer order: 0 of 96 items checked, each line with its item number, quantity and unit, with search and filters; the uploader’s name blurred',
+      position: 'left top',
+    },
+    summary:
+      'A Command Center module for checking deliveries against transfer orders. Upload the order spreadsheet and its lines become a checklist with item numbers, quantities and units. Staff tick each line as they count and note anything that is off, and any count can be picked up and finished by someone else.',
+    highlights: [
+      'Reads whatever the ordering system exports: columns are found by their headings, not their positions, so title rows above the table do not break it. The file is read in the browser and never stored.',
+      'Every upload, tick and note is saved the moment it happens, so a count survives a dropped phone and can be finished on another device. Each device offers to continue where it left off.',
+      'Search, plus To check, Checked and With notes filters, to find a line fast on the floor.',
+      'Finished counts are kept by month with a search box, each with an activity list: the upload, every tick and note, and who completed it.',
+      'Behind its own permission and security rules, with the spreadsheet parsing unit-tested against a real export.',
+    ],
   },
   {
     id: 'jarvis',
@@ -155,6 +224,10 @@ export const projects: Project[] = [
     tags: ['ai'],
     stack: ['Python', 'Whisper', 'Ollama (Qwen3 8B)', 'Kokoro TTS', 'openWakeWord', 'livekit-wakeword', 'Claude Code'],
     stat: 'runs on my desk',
+    image: {
+      src: '/projects/jarvis.webp',
+      alt: 'Jarvis’s on-screen orb in its four states: a dim blue dot asleep, a bright blue orb with ripples listening, an orange orb with rotating arcs thinking, and a pale blue orb with ripples speaking',
+    },
     summary:
       'Say “Jarvis” and ask for anything in your own words. Speech recognition, the language model and the voice all run on my own Windows PC: Whisper listens, a local Qwen3 8B model thinks through Ollama, and Kokoro speaks on the GPU. Nothing leaves the machine unless I ask it to.',
     highlights: [
@@ -174,6 +247,11 @@ export const projects: Project[] = [
     tags: ['ai', 'web'],
     stack: ['Node.js', 'Claude API', 'Ollama (Qwen3 8B)', 'streaming UI'],
     stat: '2 brains',
+    image: {
+      src: '/projects/jd-assistant.webp',
+      alt: 'JD Assistant chat on the local Qwen3 8B model: asked to save a Manila packing note and tell the time, it shows a “Writing file” and a “Checking the time” step, then answers',
+      position: 'center top',
+    },
     summary:
       'A chat page that can do things, not just answer: search the web, check the time, and read, write and delete files in its workspace. A dropdown switches the brain between the Claude API and a local Qwen3 8B model, and the same tools work with both.',
     highlights: [
@@ -192,13 +270,17 @@ export const projects: Project[] = [
     tags: ['ai', 'web'],
     stack: ['React', 'Express', 'Firebase (Auth, Firestore, Storage)', 'Meshy API', 'model-viewer'],
     stat: 'prompt → 3D',
+    image: {
+      src: '/projects/interiorgen.webp',
+      alt: 'InteriorGen AI home page: “AI Interior Design Model Generator”, with Start Generating and Text to 3D or Image to 3D options',
+      position: 'center top',
+    },
     summary:
       'Turns a text prompt or a photo into a textured 3D furniture model, with an in-browser 3D viewer, OBJ/FBX/GLB export, Google sign-in and per-user history.',
     highlights: [
       'Text-to-3D and image-to-3D through the Meshy API, with the Express server keeping the key off the client.',
       'Models are viewable in the browser and downloadable in the formats Blender and game engines expect.',
     ],
-    links: [{ label: 'Code', url: 'https://github.com/johndave090909-droid/InteriorGen-AI' }],
   },
   {
     id: 'minecraft-bots',
@@ -234,6 +316,7 @@ export const projects: Project[] = [
       'Video is cut and annotated in the browser with WebCodecs; no desktop editor needed.',
       'Photo-to-3D pipeline built on ComfyUI and TRELLIS.2, exported for the web.',
     ],
+    links: [{ label: 'Live site', url: 'https://pccculinary.com/taste-polynesia', live: true }],
   },
   {
     id: 'car-rental',
@@ -259,10 +342,14 @@ export const projects: Project[] = [
     tags: ['web'],
     stack: ['React', 'Firebase', 'Tailwind', 'Vite'],
     stat: '1 big day',
+    image: {
+      src: '/projects/wedding-rsvp.webp',
+      alt: 'Save-the-date envelope surrounded by flowers and polaroid photos of the couple',
+    },
     summary:
       'A wedding website with RSVP collection, built for a couple as a client project: guests respond on their phones and the couple sees the list update live.',
     highlights: ['RSVPs stored in Firestore and visible to the couple in real time.'],
-    links: [{ label: 'Code', url: 'https://github.com/johndave090909-droid/KateLamoglia' }],
+    links: [{ label: 'Live site', url: 'https://ayden-katriel.web.app/', live: true }],
   },
   {
     id: 'photographer-site',
@@ -274,27 +361,15 @@ export const projects: Project[] = [
     tags: ['web'],
     stack: ['React', 'Firebase'],
     stat: 'no dev needed',
+    image: {
+      src: '/projects/photographer-site.webp',
+      alt: 'Photographer’s homepage with the headline “Quiet, honest imagery for the ones you love” over a couple walking by the water',
+      position: 'center top',
+    },
     summary:
       'A portfolio site the client updates in place, without a developer: galleries and text are edited on the page itself.',
     highlights: ['Built so the handover is the last time the client needs me.'],
-  },
-  {
-    id: 'verification-system',
-    code: 'VRF',
-    title: 'Inventory verification system',
-    kicker: 'React · Firebase /\nlive on Vercel',
-    org: 'Personal',
-    year: '2025',
-    tags: ['web', 'ops'],
-    stack: ['React', 'Vite', 'Firebase'],
-    stat: 'Excel in → checked',
-    summary:
-      'Import an inventory list from Excel or paste, verify items against it, and hand the session to another device. Sessions sync through Firebase with a local fallback.',
-    highlights: ['Deployed and public; the demo link works.'],
-    links: [
-      { label: 'Live', url: 'https://verification-system-three.vercel.app' },
-      { label: 'Code', url: 'https://github.com/johndave090909-droid/Verification-System' },
-    ],
+    links: [{ label: 'Live site', url: 'https://keizha-co.web.app/', live: true }],
   },
   {
     id: 'remote-sensing',
@@ -320,6 +395,11 @@ export const projects: Project[] = [
     tags: ['motion'],
     stack: ['Remotion', 'React', 'rembg', 'ffmpeg', 'VP9 alpha'],
     stat: '60-frame loop',
+    image: {
+      src: '/projects/motion-logo.webp',
+      video: '/projects/motion-logo.mp4',
+      alt: 'Logo sting for Polynesian Cultural Center Culinary: a wok bursts into flame, then the wordmark builds beside it',
+    },
     summary:
       'Video built as React. A logo sting where 15 vector paths and ten flame tendrils animate on their own timing, with a seamless 60-frame loop for title cards. A “text behind the subject” clip that uses per-frame segmentation mattes encoded as VP9 with alpha. And nine B-roll explainer clips for a video on open-weight models, sharing one motion grammar so cuts between them feel like one piece.',
     highlights: [
@@ -327,6 +407,7 @@ export const projects: Project[] = [
       'Per-frame mattes from rembg, smoothed over 3 frames so the silhouette does not crawl.',
       'Scenes are editable live in Remotion Studio: drag an element, retime it, and the change writes back to source.',
     ],
+    links: [{ label: 'See it in use on Instagram', url: 'https://www.instagram.com/p/DfDro3dgBoj/', live: true }],
   },
   {
     id: 'suricata',
@@ -338,6 +419,13 @@ export const projects: Project[] = [
     tags: ['security'],
     stack: ['Suricata 8', 'Emerging Threats rules', 'PowerShell', 'Npcap'],
     stat: '~51,000 rules',
+    // Stock photo: "EthernetSwitch.jpg" by Raysonho, Wikimedia Commons, CC0 (no credit required).
+    // https://commons.wikimedia.org/wiki/File:EthernetSwitch.jpg
+    image: {
+      src: '/projects/intrusion-detection.webp',
+      alt: 'Close-up of a network switch with blue, yellow and green Ethernet cables plugged into its ports',
+      position: 'center top',
+    },
     summary:
       'Suricata running natively on Windows against the host’s own traffic: ~51,000 Emerging Threats rules plus my own, PowerShell start/stop tooling and write-ups of what it actually caught.',
     highlights: ['Detection only; nothing is blocked.', 'IoT devices brought into scope through a mobile hotspot.'],

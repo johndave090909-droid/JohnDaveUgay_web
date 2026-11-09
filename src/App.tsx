@@ -1,129 +1,106 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BackgroundCanvas } from './components/BackgroundCanvas';
-import { Brand } from './components/Brand';
-import { SectionCounter } from './components/SectionCounter';
-import { Nav } from './components/Nav';
-import { IndexList } from './components/IndexList';
-import { Detail } from './components/Detail';
-import { MobileSheet } from './components/MobileSheet';
-import {
-  SECTIONS,
-  homeAnchor,
-  isHome,
-  navigate,
-  parseHash,
-  revisit,
-  scrollContentTo,
-  useHomeSpy,
-  useMediaQuery,
-  useRoute,
-  type Route,
-} from './lib/hashRoute';
-import { getList, type Filter } from './lib/lists';
+import React, { useEffect, useState } from 'react';
+import { Landing } from './components/Landing';
+import { SiteHeader } from './components/SiteHeader';
+import { SiteFooter } from './components/SiteFooter';
+import { pageById, parseHash, scrollToId, scrollToTop, useRoute, type Route } from './lib/hashRoute';
 import { profile } from './data/profile';
 import { projects } from './data/projects';
 import { caseStudies } from './data/caseStudies';
+import { AboutView } from './views/AboutView';
+import { ProjectDetail, ProjectsView, type Filter } from './views/ProjectsView';
+import { RecommendationsView } from './views/RecommendationsView';
+import { CaseStudiesView, CaseStudyDetail } from './views/CaseStudiesView';
+import { ResumeView } from './views/ResumeView';
+import { HowIWorkView } from './views/HowIWorkView';
+import { LinksView } from './views/LinksView';
 
-/** Which case study the detail column shows: the one in the URL if it exists, else the first. */
-function resolveCaseStudy(route: Route): string | undefined {
-  if (route.section !== 'case-studies') return undefined;
-  return caseStudies.some((c) => c.id === route.item) ? route.item : caseStudies[0]?.id;
+function PageView({ route, filter, setFilter }: { route: Route; filter: Filter; setFilter: (f: Filter) => void }) {
+  switch (route.page) {
+    case 'projects': {
+      const p = route.item ? projects.find((x) => x.id === route.item) : undefined;
+      return p ? <ProjectDetail project={p} /> : <ProjectsView filter={filter} setFilter={setFilter} />;
+    }
+    case 'case-studies': {
+      const cs = route.item ? caseStudies.find((x) => x.id === route.item) : undefined;
+      return cs ? <CaseStudyDetail cs={cs} /> : <CaseStudiesView />;
+    }
+    case 'recommendations':
+      return <RecommendationsView />;
+    case 'resume':
+      return <ResumeView />;
+    case 'how-i-work':
+      return <HowIWorkView />;
+    case 'links':
+      return <LinksView />;
+    default:
+      return <AboutView />;
+  }
+}
+
+/** A single project or case study, which carries its own previous/next links. */
+const isDetail = (route: Route) =>
+  (route.page === 'projects' && projects.some((p) => p.id === route.item)) ||
+  (route.page === 'case-studies' && caseStudies.some((c) => c.id === route.item));
+
+/** Tab title for a route: the page, and the project or case study when one is open. */
+function titleFor(route: Route): string {
+  if (route.page === 'home') return `${profile.name} · Portfolio`;
+  const page = pageById(route.page)?.label ?? '';
+  const item =
+    route.page === 'projects'
+      ? projects.find((p) => p.id === route.item)?.title
+      : route.page === 'case-studies'
+        ? caseStudies.find((c) => c.id === route.item)?.kicker
+        : undefined;
+  return [item, page, profile.name].filter(Boolean).join(' · ');
 }
 
 export default function App() {
   const route = useRoute();
-  const isMobile = useMediaQuery('(max-width: 760px)');
   const [filter, setFilter] = useState<Filter>('all');
-  const onHome = isHome(route.section);
+  const home = route.page === 'home';
 
-  // Scroll to whatever the URL names. Within the home page that is a glide; arriving from another page is a jump.
-  const scrolledFor = useRef<Route | null>(null);
+  // The landing page is a single fixed screen; every other page scrolls normally
   useEffect(() => {
-    const target = route.section === 'projects' && route.item ? projects.find((p) => p.id === route.item) : undefined;
-    if (target && filter !== 'all' && !target.tags.includes(filter)) {
-      setFilter('all'); // the project is filtered out; scroll once it is back in the list
+    document.documentElement.classList.toggle('landing', home);
+  }, [home]);
+
+  useEffect(() => {
+    document.title = titleFor(route);
+  }, [route]);
+
+  // A new page opens at its top. A recommendation link opens its page at that recommendation.
+  useEffect(() => {
+    if (home) return;
+    if (route.page === 'recommendations' && route.item) {
+      const id = `rec-${route.item}`;
+      requestAnimationFrame(() => scrollToId(id, false));
       return;
     }
-    if (scrolledFor.current === route) return;
-    const wasHome = scrolledFor.current !== null && isHome(scrolledFor.current.section);
-    scrolledFor.current = route;
-    if (onHome) scrollContentTo(homeAnchor(route), wasHome);
-    else scrollContentTo(undefined, false);
-  }, [route, filter, onHome]);
+    window.scrollTo(0, 0);
+  }, [route, home]);
 
-  // On the home page, the nav, counter and index follow the part being read
-  const spy = useHomeSpy(onHome, route.section, [isMobile, filter]);
-  const current = onHome ? spy.section : route.section;
-  const section = SECTIONS.find((s) => s.id === current) ?? SECTIONS[0];
-  const items = useMemo(() => getList(current, filter), [current, filter]);
-  const activeId = onHome ? spy.project : resolveCaseStudy(route);
-
-  // Tab title follows the page
-  useEffect(() => {
-    document.title = onHome ? profile.name : `${section.label} · ${profile.name}`;
-  }, [onHome, section.label]);
-
-  // A link to the URL already open still scrolls to its target
+  // Clicking a link to the page already open goes back to its top
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const href = (e.target as Element | null)?.closest('a')?.getAttribute('href');
-      if (href && href.startsWith('#/') && href === window.location.hash) revisit(parseHash(href));
+      if (href && href.startsWith('#/') && parseHash(href).page !== 'home' && href === window.location.hash) scrollToTop();
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
   }, []);
 
-  // Left/right arrow keys step through the sections
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.altKey || e.ctrlKey || e.metaKey) return;
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      const i = SECTIONS.findIndex((s) => s.id === current);
-      if (e.key === 'ArrowRight') navigate(SECTIONS[(i + 1) % SECTIONS.length].id);
-      if (e.key === 'ArrowLeft') navigate(SECTIONS[(i - 1 + SECTIONS.length) % SECTIONS.length].id);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [current]);
+  if (home) return <Landing />;
 
   return (
-    <main className="relative w-screen app-h overflow-hidden bg-black text-[var(--text)]">
-      {/* Layer 1: GPU particle portrait and fluid simulation */}
-      <BackgroundCanvas />
-
-      {/* Layer 2: monospace UI */}
-      <div className="ui fixed inset-0 z-1 pointer-events-none">
-        {/* Shade under the header and the two text columns so the copy stays readable over the dot field */}
-        {!isMobile && (
-          <>
-            <div
-              className="absolute inset-x-0 top-0 h-[110px] bg-gradient-to-b from-black/75 to-transparent"
-              aria-hidden="true"
-            />
-            <div className="shade-left absolute inset-y-0 left-0" aria-hidden="true" />
-            <div className="shade-right absolute inset-y-0 right-0" aria-hidden="true" />
-          </>
-        )}
-        {/* Phones: a shade under the brand and nav; the content panel scrolls below them */}
-        {isMobile && (
-          <div
-            className="absolute inset-x-0 top-0 h-[128px] bg-gradient-to-b from-black/90 via-black/70 to-transparent"
-            aria-hidden="true"
-          />
-        )}
-        <Brand />
-        <SectionCounter section={section} />
-        <Nav active={current} mobile={isMobile} />
-        {isMobile ? (
-          <MobileSheet route={route} items={items} activeId={activeId} filter={filter} setFilter={setFilter} />
-        ) : (
-          <>
-            <IndexList key={current} items={items} activeId={activeId} />
-            <Detail route={route} activeId={activeId} filter={filter} setFilter={setFilter} />
-          </>
-        )}
-      </div>
-    </main>
+    <div className="min-h-dvh flex flex-col bg-black">
+      <SiteHeader current={route.page} />
+      <main id="main" className="flex-1">
+        <div key={`${route.page}/${route.item ?? ''}`} className="rise">
+          <PageView route={route} filter={filter} setFilter={setFilter} />
+        </div>
+      </main>
+      <SiteFooter current={route.page} pageNav={!isDetail(route)} />
+    </div>
   );
 }

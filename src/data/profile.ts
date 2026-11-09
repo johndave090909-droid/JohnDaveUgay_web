@@ -20,7 +20,7 @@ export const profile = {
   email: 'johndave090909@gmail.com',
   availability: 'Open to Spring/Summer 2027 internships',
   school: 'BYU–Hawaii · B.S. Supply Chain Management, IT minor · Dec 2027',
-  work: 'Polynesian Cultural Center, Culinary · AI, Software & Systems Specialist',
+  work: 'Polynesian Cultural Center, Culinary · Head of Operations Intelligence',
   studio: 'NathanWORKS · web & automation studio',
   languages: 'English, Tagalog, Cebuano, Surigaonon, Bislama',
 };
@@ -31,7 +31,7 @@ export const links: WebLink[] = [
     label: 'GitHub',
     url: 'https://github.com/johndave090909-droid',
     handle: 'johndave090909-droid',
-    note: 'Public repos, including InteriorGen AI and the inventory verification system.',
+    note: 'Public code, including the source of this website.',
   },
   {
     id: 'linkedin',
@@ -57,15 +57,10 @@ export const links: WebLink[] = [
   {
     id: 'nathanworks',
     label: 'NathanWORKS',
-    url: '',
-    handle: 'add link in src/data/profile.ts',
-    note: 'Freelance web & automation studio.',
-  },
-  {
-    id: 'verification-live',
-    label: 'Live demo',
-    url: 'https://verification-system-three.vercel.app',
-    handle: 'verification-system-three.vercel.app',
-    note: 'Inventory verification system, deployed on Vercel.',
+    url: 'https://nathan-works.web.app',
+    handle: 'nathan-works.web.app',
+    note: 'My web and automation studio.',
   },
 ];
+// Live sites and work in use are not listed here: the Contact page collects every project link marked
+// `live: true` in projects.ts.

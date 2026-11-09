@@ -35,7 +35,7 @@ export const caseStudies: CaseStudy[] = [
       'Gathered needs directly from chefs, managers and the Culinary Director, demoed working versions and shipped in small steps instead of presenting plans.',
       'React and TypeScript on Firebase: Firestore, Auth, Storage and 35+ Cloud Functions. 17 permission roles enforced in security rules; API keys server-side in Secret Manager.',
       'Ran it as production software: a separate test environment loaded with live data, unit tests on the PDF and data parsers, and pull-request review for a second developer who joined the project.',
-      'Shipped LLM features only where they removed a real step. Claude reads a photo of a student’s class schedule into scheduler entries; Gemini turns each project board into a structured portfolio map.',
+      'Shipped LLM features only where they removed a real step. Claude reads a photo of a student’s class schedule into scheduler entries. The Director’s workload and completion views are the opposite: fixed, tested rules, so every number traces back to a card.',
       'Built with AI-assisted development (Claude Code, Codex), which is how one person ships this much. I make the product decisions, read what the tools produce, test against real data and answer for it.',
     ],
     result: [
@@ -46,61 +46,33 @@ export const caseStudies: CaseStudy[] = [
     ],
     learned:
       'Internal tools die when they are harder than the thing they replace. The modules that stuck were the ones that saved someone a step on day one. The ones that needed training sat unused until I simplified them.',
-    stack: ['TypeScript', 'React', 'Firebase', 'Cloud Functions', 'Secret Manager', 'Claude API', 'Gemini API'],
-    projects: ['command-center', 'kpi-live', 'labor-report'],
+    stack: ['TypeScript', 'React', 'Firebase', 'Cloud Functions', 'Secret Manager', 'Claude API'],
+    projects: ['command-center', 'missionboard', 'kpi-live', 'labor-report'],
   },
   {
     id: 'recipe-audit',
     title: 'A 3.5% forecast gap that was hiding a 28% variance',
-    kicker: 'Recipe-card cost audit',
+    kicker: 'Recipe-cost variance',
     org: 'Polynesian Cultural Center',
     year: '2026',
     metric: { value: '198 / 203', label: 'recipe-card ingredient lines with costing errors' },
     context:
       'Food cost is forecast from recipe cards. Every dish lists its ingredients, quantities and unit costs, and the forecast rolls them up against expected guest counts.',
     problem:
-      'The forecast was 3.5% off in total, which looked acceptable. But the department kept seeing surprises at the line level, and the cards had not been checked individually in a long time.',
+      'The forecast was 3.5% off in total, which looked acceptable. Then an AI-assisted scan found costing errors on 198 of 203 recipe-card ingredient lines. The small total was hiding a 28% variance, because large errors in both directions were cancelling each other out.',
     approach: [
-      'Pulled all 203 ingredient lines from the recipe cards and re-costed each one against current purchase data.',
-      'Recorded every discrepancy per line rather than per dish, so the pattern was visible instead of averaged away.',
-      'Separated the net error from the line-level variance, so leadership could see that the small total came from large errors cancelling each other out.',
-      'Traced ordering timing alongside the costing: warehouse deliveries arrive after prep has started, which pushes the kitchen into substitutions the cards never see.',
+      'Helped plan how to proceed once the errors were found.',
+      'Helped put together the plan to eliminate the variance: a 60-day recipe-correction sprint for the cards, and a next-day ordering pilot, because warehouse deliveries arrive after prep has started and push the kitchen into substitutions the cards never see.',
+      'Explained the findings and the plan carefully to the managers, the Culinary Director and R&D, including why a 3.5% total could look fine while individual lines were far off.',
     ],
     result: [
-      'Errors found on 198 of 203 lines. The 3.5% net gap was hiding a 28% line-level variance.',
-      'Proposed a 60-day recipe-correction sprint to leadership.',
-      'Proposed a next-day ordering pilot so deliveries land before prep begins.',
+      'Errors on 198 of 203 lines; the 3.5% net gap was hiding a 28% line-level variance.',
+      'A plan to eliminate the variance, a 60-day recipe-correction sprint and a next-day ordering pilot, presented to the managers, the Culinary Director and R&D.',
     ],
     learned:
       'A good total can hide bad parts. Every report I have built since validates its inputs before anyone sees the sum.',
-    stack: ['Excel', 'Python', 'variance analysis'],
+    stack: ['Variance analysis', 'Food-cost planning'],
     projects: ['recipe-audit'],
-  },
-  {
-    id: 'scheduler',
-    title: 'Shift coverage from 31.7% to ~75%, with the ceiling known first',
-    kicker: 'Auto-scheduler & labor forecast',
-    org: 'Polynesian Cultural Center',
-    year: '2025',
-    metric: { value: '31.7% → ~75%', label: 'shift coverage, against a 76.1% maximum' },
-    context:
-      'About 51 student workers cover 77 positions a week. Each student is capped at 19 hours and boxed in by a class schedule. The schedule was built by hand in Excel.',
-    problem:
-      'Hand-built schedules covered 31.7% of positions. Separately, the department’s labor-cost estimate for payroll was off by −29%.',
-    approach: [
-      'Modelled the problem as positions × students × availability under the 19-hour cap, and computed the ceiling first: with the given availability, the best possible coverage was 76.1%. That made the target honest.',
-      'Built the scheduler in Excel/VBA, where managers already worked, with Python handling the assignment logic.',
-      'For the forecast, built a seasonal labor-cost model and back-tested it against prior periods, then designed a headcount-based method for the payroll estimate.',
-    ],
-    result: [
-      'Coverage rose from 31.7% to ~75% against the 76.1% ceiling.',
-      'The forecast back-tests at 4.5% mean error.',
-      'The payroll estimate gap went from −29% to +4.7%.',
-    ],
-    learned:
-      'Compute the ceiling before promising a number. Knowing the maximum was 76.1% turned “can you do better” into a target everyone could see.',
-    stack: ['Excel/VBA', 'Python', 'forecasting'],
-    projects: ['scheduler-forecast'],
   },
   {
     id: 'data-pipelines',
@@ -115,7 +87,7 @@ export const caseStudies: CaseStudy[] = [
       'The numbers were assembled by hand every Monday and every morning. PDFs changed format without warning, and a stale report looked exactly like a fresh one.',
     approach: [
       'Weekly: a Cloud Function merges Power BI guest counts with UKG timesheets (~6,500 guests and ~1,650 hours a week), validates the join and emails labor cost per guest against target.',
-      'Daily: parsers read the PDF reports into the 31-measure scorecard, and live guest counts refresh every 5 minutes on 4 screens.',
+      'Daily: parsers read the PDF reports into the 31-measure scorecard, and live guest counts refresh every 5 minutes on 4 screens. The live count is pulled by a combination of Microsoft Power Automate and an n8n-inspired automation I built myself.',
       'Every parser checks the format it expects and raises an alert when a report changes or data goes stale, so a wrong number never looks like a right one.',
       '93 staff profiles sync from the Google Sheet the office already maintains, so their workflow did not change.',
     ],
@@ -125,7 +97,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     learned:
       'The failure mode of automation is silent wrongness. Alerts on format and freshness are the feature, not an extra.',
-    stack: ['Cloud Functions', 'Node.js', 'PDF parsing', 'Power BI', 'UKG', 'Google Sheets'],
+    stack: ['Cloud Functions', 'Node.js', 'PDF parsing', 'Microsoft Power Automate', 'Power BI', 'UKG', 'Google Sheets'],
     projects: ['labor-report', 'kpi-live'],
   },
 ];

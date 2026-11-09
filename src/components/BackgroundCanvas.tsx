@@ -11,7 +11,12 @@ const PORTRAIT_URL = '/portrait.jpg';
 const MOBILE_FIT_WIDTH = 4.6;
 const MOBILE_CENTER_LIFT = 0.16;
 
-export const BackgroundCanvas: React.FC = () => {
+// Desktop: the face sits a little right of the photo's centre, so the figure is pulled back by this much
+// (world units) when it is centred in the free space beside the landing text.
+const DESKTOP_FACE_BIAS = 0.15;
+
+/** `clearLeft`: pixels on the left kept for text (desktop); the figure centres in the space to their right. */
+export const BackgroundCanvas: React.FC<{ clearLeft?: number }> = ({ clearLeft = 0 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -67,11 +72,20 @@ export const BackgroundCanvas: React.FC = () => {
 
     const scene = new THREE.Scene();
 
+    // Desktop: move the figure right so it fills the space beside the text instead of sitting under it.
+    // Pixels per world unit at the figure's depth come from the camera distance (6) and the vertical FOV.
+    let desktopOffsetX: number | undefined;
+    if (!isMobile && clearLeft > 0) {
+      const pxPerUnit = window.innerHeight / (2 * 6 * halfFov);
+      const shiftPx = (clearLeft + window.innerWidth) / 2 - window.innerWidth / 2;
+      desktopOffsetX = THREE.MathUtils.clamp(shiftPx / pxPerUnit - DESKTOP_FACE_BIAS, 0, 1.4);
+    }
+
     const fluid = new FluidSimulation(renderer);
     const particles = new ImageParticles(renderer, isMobile, PORTRAIT_URL, {
-      // Centred on phones (the desktop nudge makes room for the side columns), with dots scaled up to
-      // compensate for the farther camera
-      offsetX: isMobile ? 0 : undefined,
+      // Centred on phones, beside the text on desktop, with dots scaled up on phones to compensate for the
+      // farther camera
+      offsetX: isMobile ? 0 : desktopOffsetX,
       pointScale: isMobile ? mobileZ / 6 : 1,
     });
     scene.add(particles.group);
@@ -199,6 +213,9 @@ export const BackgroundCanvas: React.FC = () => {
       particles.dispose();
       fluid.dispose();
       renderer.dispose();
+      // The portrait unmounts whenever a visitor leaves the landing page; release the GL context so
+      // repeated visits do not pile up contexts until the browser starts dropping them
+      renderer.forceContextLoss();
     };
   }, []);
 
